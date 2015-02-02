@@ -22,5 +22,5 @@ cd happy-dance-master
 
 Credit goes to stribika for writing Secure Secure Shell. Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
 
-NOTE: Ironically enough, using this setup as a client is too hardcore for github.com, which throws a "Unable to negotiate a key exchange method" error.
+NOTE: Ironically enough, using this setup as a client is too hardcore for github.com, which throws an "Unable to negotiate a key exchange method" error.
 
