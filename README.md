@@ -14,7 +14,7 @@ To use this repository, OpenSSH 6.5 or higher is required. It was tested on Debi
 
 ```sh
 git clone https://github.com/NSAKEY/happy-dance.git
-cd happy-dance
+cd happy-dance-mater
 ./happy-dance.sh
 ```
 
