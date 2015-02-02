@@ -13,6 +13,16 @@ echo "This script will give you an ssh config for clients and servers that shoul
 Use -h for help
 "
 
+# root is required in order to copy the config files to /etc/ssh.
+
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+# The ssh_client function takes the time to check for the existence of keys because deleting or overwriting existing keys would be bad. 
+# This will generate keys for the root user. You will want to move and chown the generated public/private keypairs to suit your environment.
+
 ssh_client() {
     cp $PWD/etc/ssh/ssh_config /etc/ssh/ssh_config
 
@@ -29,17 +39,16 @@ ssh_client() {
     fi
 }
 
+# Meanwhile, the ssh_server function asks if you're sure you want to obliterate the public/private keypairs which make up the host keys.
+# After that, /etc/ssh/module is either hardened or generated in a hardened state and then the ED26619 and 4096-bit RSA host keys are generated. As having passwords on host keys means that sshd won't start automatically, the choice of passwording them has been removed from the user.
+
 ssh_server() {
-    if [[ $EUID -ne 0 ]]; then
-        echo "This script must be run as root" 1>&2
-        exit 1
-    fi
-        read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)"
+    read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)"
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         cp $PWD/etc/ssh/sshd_config /etc/ssh/sshd_config
 
         if [ ! -f /etc/ssh/moduli ]; then
-            echo "Your OS doesn't have an /etc/ssh/module file, so we have to generate one. This might take a while."
+            echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
             ssh-keygen -G "${HOME}/moduli" -b 4096
             ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
             rm "${HOME}/moduli"
@@ -50,14 +59,15 @@ ssh_server() {
 
         cd /etc/ssh
         rm ssh_host_*key*
-        echo "Do NOT set passwords for the host keys! Otherwise sshd will not be able to start automatically."
-        ssh-keygen -t ed25519 -f ssh_host_ed25519_key < /dev/null
-        ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key < /dev/null
-        /etc/init.d/ssh restart # YOLO
+        ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
+        ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
+        /etc/init.d/ssh restart
     else
         exit;
     fi
 }
+
+# This last bit of code just defines the flags.
 
 while getopts "hcs" opt; do
     case $opt in
