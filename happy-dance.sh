@@ -33,7 +33,7 @@ ssh_client() {
 }
 
 # Meanwhile, the ssh_server function asks if you're sure you want to obliterate the public/private keypairs which make up the host keys.
-# After that, /etc/ssh/moduli is either hardened or generated in a hardened state and then the ED26619 and 4096-bit RSA host keys are generated. As having passwords on host keys means that sshd won't start automatically, the choice of passwording them has been removed from the user.
+# After that, /etc/ssh/moduli is either hardened or generated in a hardened state and then the ED25519 and 4096-bit RSA host keys are generated. As having passwords on host keys means that sshd won't start automatically, the choice of passwording them has been removed from the user.
 
 ssh_server() {
     read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)"
