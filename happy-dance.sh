@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 # happy-dance.sh by _NSAKEY
@@ -9,7 +9,7 @@
 
 PWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living. 
+echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
 Use -h for help.
 "
 
@@ -36,31 +36,32 @@ ssh_client() {
 # After that, /etc/ssh/moduli is either hardened or generated in a hardened state and then the ED25519 and 4096-bit RSA host keys are generated. As having passwords on host keys means that sshd won't start automatically, the choice of passwording them has been removed from the user.
 
 ssh_server() {
-    read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)"
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Replacing your ssh server configuration file..."
-        sudo cp $PWD/etc/ssh/sshd_config /etc/ssh/sshd_config
+    while true; do
+        read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
+        case $yn in
+            [Yy]* ) echo "Replacing your ssh server configuration file..."
+                sudo cp $PWD/etc/ssh/sshd_config /etc/ssh/sshd_config
 
-        if [ ! -f /etc/ssh/moduli ]; then
-            echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
-            sudo ssh-keygen -G "${HOME}/moduli" -b 4096
-            sudo ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
-            sudo rm "${HOME}/moduli"
-        else
-            echo "Modifying your /etc/ssh/moduli"
-            sudo awk '$5 > 2000' /etc/ssh/moduli > "${HOME}/moduli"
-            sudo mv "${HOME}/moduli" /etc/ssh/moduli
-        fi
+                if [ ! -f /etc/ssh/moduli ]; then
+                    echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
+                    sudo ssh-keygen -G "${HOME}/moduli" -b 4096
+                    sudo ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
+                    sudo rm "${HOME}/moduli"
+                else
+                    echo "Modifying your /etc/ssh/moduli"
+                    sudo awk '$5 > 2000' /etc/ssh/moduli > "${HOME}/moduli"
+                    sudo mv "${HOME}/moduli" /etc/ssh/moduli
+                fi
 
-        cd /etc/ssh
-        sudo rm ssh_host_*key*
-        sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
-        sudo ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
-        sudo /etc/init.d/ssh restart
-        echo "Without closing this ssh session, add your public key to ~/.ssh/authorized_keys if it isn't there already and try logging in. If it works, HAPPY DANCE!"
-    else
-        exit;
-    fi
+                cd /etc/ssh
+                sudo rm ssh_host_*key*
+                sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
+                sudo ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
+                echo "Without closing this ssh session, add your public key to ~/.ssh/authorized_keys if it isn't there already, restart your sshd, remove the line from your known_hosts file which corresponds to this server, and try logging in. If it works, HAPPY DANCE!"
+                break;;
+            [Nn]* ) exit;;
+        esac
+    done
 }
 
 # This last bit of code just defines the flags.
