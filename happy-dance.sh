@@ -57,7 +57,14 @@ ssh_server() {
                 sudo rm ssh_host_*key*
                 sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
                 sudo ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
+                ED25519_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub)"
+                RSA_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key.pub)"
                 sudo service sshd restart # Works on everything I tested but Wheezy with backported openssh-server. Included for maximum laziness
+                echo ""
+                echo "Your new host key fingerprints are:"
+                echo $ED25519_fingerprint
+                echo $RSA_fingerprint
+                echo ""
                 echo "Without closing this ssh session, add your public key to ~/.ssh/authorized_keys if it isn't there already, restart your sshd (If it wasn't restarted already), remove the line from your known_hosts file which corresponds to this server, and try logging in. If it works, HAPPY DANCE!"
                 break;;
             [Nn]* ) exit;;
@@ -89,3 +96,4 @@ while getopts "hcs" opt; do
         ;;
     esac
 done
+
