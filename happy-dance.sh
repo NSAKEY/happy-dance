@@ -3,30 +3,33 @@
 ###
 # happy-dance.sh by _NSAKEY
 # Requirements: OpenSSH 6.5 or above, sudo access.
+# (But you should probably run as root anyway)
 # Tested on the following platforms:
 # - Debian Wheezy/Jessie (With ssh from wheezy-backports for Wheezy)
 # - Ubuntu 14.04/15.04
 # - CentOS 7
 # - FreeBSD 10
-# - NetBSD 7.0
+# - OpenBSD 5.7
+# - NetBSD 7.0 RC 1
 # - Solaris 11.2 with CSWOpenSSH.
 
 # Notes:
-# 1. NetBSD users: /etc/moduli is the same as /etc/moduli on other platforms.
-# You don't have to do anything extra to make the script work. Also, SHA256
-# fingerprints are now a thing for you.
+# 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
+# platforms. You don't have to do anything extra to make the script work.
+# Also, SHA256 fingerprints are now a thing for you.
 # 2. Solaris users: Change the shell to /bin/bash. After that, It Just Works.
 
 # TO DO:
-# 1. Test and rework to support OpenBSD, just because.
-# 2. Eventually rework the configs to support new options in OpenSSH,
+# 1. Eventually rework the configs to support new options in OpenSSH,
 # like FingerprintHash in 6.8 and ChaCha20-poly1350@openssh.com in 6.9.
+# 2. Determine the best way to auto-change the shell for Solaris users.
 
 # This script automates everything laid out in stribika's Secure Secure Shell.
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
 ###
 
 #PWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Breaks NetBSD 7.0. So much for being fancy about forcing full path names.
+UNAME=`uname`
 
 echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
 Use -h for help.
@@ -63,7 +66,11 @@ ssh_client() {
 
 ssh_server() {
     while true; do
-        read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
+        if [ $UNAME = "OpenBSD" ]; then # Needed for OpenBSD support because OpenBSD's read command is different.
+            read yn?"This option destroys all host keys. Are you sure want to proceed? (y/n)"
+        else
+            read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
+        fi
         case $yn in
             [Yy]* ) echo "Replacing your ssh server configuration file..."
                 sudo cp etc/ssh/sshd_config /etc/ssh/sshd_config #Removed $PWD
