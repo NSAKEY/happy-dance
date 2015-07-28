@@ -12,9 +12,9 @@
 # - Solaris 11.2 with CSWOpenSSH.
 
 # Notes:
-# 1. NetBSD users: /etc/ssh/module has to be generated. Since this is kind of
-# annoying, I may just drop a known good /etc/ssh/moduli in this project and
-# rework the script to automatically cp it over.
+# 1. NetBSD users: /etc/moduli is the same as /etc/moduli on other platforms.
+# You don't have to do anything extra to make the script work. Also, SHA256
+# fingerprints are now a thing for you.
 # 2. Solaris users: Change the shell to /bin/bash. After that, It Just Works.
 
 # TO DO:
@@ -69,10 +69,16 @@ ssh_server() {
                 sudo cp etc/ssh/sshd_config /etc/ssh/sshd_config #Removed $PWD
 
                 if [ ! -f /etc/ssh/moduli ]; then
-                    echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
-                    sudo ssh-keygen -G "${HOME}/moduli" -b 4096
-                    sudo ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
-                    sudo rm "${HOME}/moduli"
+                    if [ ! -f /etc/moduli ]; then
+                        echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
+                        sudo ssh-keygen -G "${HOME}/moduli" -b 4096
+                        sudo ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
+                        sudo rm "${HOME}/moduli"
+                    else
+                        echo "Modifying your /etc/moduli"
+                        sudo awk '$5 > 2000' /etc/moduli > "${HOME}/moduli"
+                       sudo mv "${HOME}/moduli" /etc/moduli
+                    fi
                 else
                     echo "Modifying your /etc/ssh/moduli"
                     sudo awk '$5 > 2000' /etc/ssh/moduli > "${HOME}/moduli"
@@ -125,4 +131,3 @@ while getopts "hcs" opt; do
         ;;
     esac
 done
-
