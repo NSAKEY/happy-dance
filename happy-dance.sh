@@ -3,14 +3,30 @@
 ###
 # happy-dance.sh by _NSAKEY
 # Requirements: OpenSSH 6.5 or above, sudo access.
-# Tested on Debian Wheezy/Jessie (With ssh from wheezy-backports for Wheezy),
-# Ubuntu 14.04/15.04, CentOS 7, FreeBSD 10, and Solaris 11.2 with CSWOpenSSH.
-# Note for Solaris users: Change the shell to /bin/bash and It Just Works.
+# Tested on the following platforms:
+# - Debian Wheezy/Jessie (With ssh from wheezy-backports for Wheezy)
+# - Ubuntu 14.04/15.04
+# - CentOS 7
+# - FreeBSD 10
+# - NetBSD 7.0
+# - Solaris 11.2 with CSWOpenSSH.
+
+# Notes:
+# 1. NetBSD users: /etc/ssh/module has to be generated. Since this is kind of
+# annoying, I may just drop a known good /etc/ssh/moduli in this project and
+# rework the script to automatically cp it over.
+# 2. Solaris users: Change the shell to /bin/bash. After that, It Just Works.
+
+# TO DO:
+# 1. Test and rework to support OpenBSD, just because.
+# 2. Eventually rework the configs to support new options in OpenSSH,
+# like FingerprintHash in 6.8 and ChaCha20-poly1350@openssh.com in 6.9.
+
 # This script automates everything laid out in stribika's Secure Secure Shell.
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
 ###
 
-PWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#PWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Breaks NetBSD 7.0. So much for being fancy about forcing full path names.
 
 echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
 Use -h for help.
@@ -23,7 +39,7 @@ https://stribika.github.io/2015/01/04/secure-secure-shell.html
 
 ssh_client() {
     echo "Replacing your ssh client configuration file..."
-    sudo cp $PWD/etc/ssh/ssh_config /etc/ssh/ssh_config
+    sudo cp etc/ssh/ssh_config /etc/ssh/ssh_config # Removed $PWD
 
     if [ ! -f $HOME/.ssh/id_ed25519 ]; then
         ssh-keygen -t ed25519 -o -a 100
@@ -50,7 +66,7 @@ ssh_server() {
         read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
         case $yn in
             [Yy]* ) echo "Replacing your ssh server configuration file..."
-                sudo cp $PWD/etc/ssh/sshd_config /etc/ssh/sshd_config
+                sudo cp etc/ssh/sshd_config /etc/ssh/sshd_config #Removed $PWD
 
                 if [ ! -f /etc/ssh/moduli ]; then
                     echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
