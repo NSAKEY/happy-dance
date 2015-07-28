@@ -17,12 +17,10 @@
 # 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
 # platforms. You don't have to do anything extra to make the script work.
 # Also, SHA256 fingerprints are now a thing for you.
-# 2. Solaris users: Change the shell to /bin/bash. After that, It Just Works.
 
 # TO DO:
 # 1. Eventually rework the configs to support new options in OpenSSH,
 # like FingerprintHash in 6.8 and ChaCha20-poly1350@openssh.com in 6.9.
-# 2. Determine the best way to auto-change the shell for Solaris users.
 
 # This script automates everything laid out in stribika's Secure Secure Shell.
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
@@ -66,7 +64,7 @@ ssh_client() {
 
 ssh_server() {
     while true; do
-        if [ $UNAME = "OpenBSD" ]; then # Needed for OpenBSD support because OpenBSD's read command is different.
+        if [ $UNAME = "OpenBSD" ] || [ $UNAME = "SunOS" ]; then # Needed for OpenBSD and Solaris support because the read command behaves differently on both.
             read yn?"This option destroys all host keys. Are you sure want to proceed? (y/n)"
         else
             read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
