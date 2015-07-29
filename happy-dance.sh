@@ -8,7 +8,7 @@
 # - Debian Wheezy & Jessie (With ssh from wheezy-backports for Wheezy)
 # - Ubuntu 14.04 & 15.04
 # - CentOS 7
-# - Mac OS X Yosemite Niresh with brew's openssh
+# - Mac OS X Yosemite Niresh with Homebrew's openssh
 # - FreeBSD 10 & 11
 # - OpenBSD 5.7
 # - NetBSD 7.0 RC 1
@@ -18,7 +18,7 @@
 # 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
 # platforms. You don't have to do anything extra to make the script work.
 # Also, SHA256 fingerprints are now a thing for you.
-# 2. Mac users: You need to install brew. Once that's done, install openssh like so:
+# 2. Mac users: You need to install Homebrew. Once that's done, install openssh like so:
 # "brew install openssh --with-brewed-openssl"
 # This will give you a working version of OpenSSH with OpenSSL. Testing without
 # OpenSSL failed miserably, so installing it isn't optional.
