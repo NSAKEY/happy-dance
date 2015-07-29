@@ -14,7 +14,18 @@ If you want to take it a step further, you could install Tor, set up ssh as an a
 
 Fun Fact: The client set-up this script provides is still (As of July 28th, 2015) too hardcore for github.com. I had to comment out the KexAlgorithms in /etc/ssh/ssh_config in order to push to github with ssh. 
 
-To use this repository, OpenSSH 6.5 or higher is required. It was tested on FreeBSD 10.1 and 11, Ubuntu 14.04 and 15.04, CentOS 7, Debian Jessie, and Debian Wheezy with the "ssh" package from wheezy-backports (OpenSSH 6.6) installed. It will also work on Solaris 11.2 if you change the shell to /bin/bash and have OpenCSW's OpenSSH package installed. If you're stuck using an older version of OpenSSH, I really can't help you. Here are the commands you'll want to run:
+To use this repository, OpenSSH 6.5 or higher is required. This scripts works on the following platforms:
+
+- Debian Wheezy & Jessie (With ssh from wheezy-backports for Wheezy)
+- Ubuntu 14.04 & 15.04
+- CentOS 7
+- Mac OS X Yosemite Niresh with brew's openssh
+- FreeBSD 10 & 11
+- OpenBSD 5.7
+- NetBSD 7.0 RC 1
+- Solaris 11.2 with CSWOpenSSH
+
+If you're stuck using an older version of OpenSSH, I really can't help you. Here are the commands you'll want to run:
 
 ```sh
 git clone https://github.com/NSAKEY/happy-dance.git
