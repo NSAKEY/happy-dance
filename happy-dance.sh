@@ -20,7 +20,8 @@
 # Also, SHA256 fingerprints are now a thing for you.
 # 2. Mac users: You need to install brew. Once that's done, install openssh like so:
 # "brew install openssh --with-brewed-openssl"
-# I'm going to go out on a limb and guess that Apple's TLS library won't work.
+# This will give you a working version of OpenSSH with OpenSSL. Testing without
+# OpenSSL failed miserably, so installing it isn't optional.
 # 3. Another Mac user note: The script drops "unset SSH_AUTH_SOCK" in your
 # .bash_profile. This is needed so that you can connect to remote hosts. Check the
 # comments below if you wish to know more.
