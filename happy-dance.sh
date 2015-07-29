@@ -19,6 +19,7 @@
 # platforms. You don't have to do anything extra to make the script work.
 # Also, SHA256 fingerprints are now a thing for you.
 # 2. Mac users: You need to install Homebrew. Once that's done, install openssh like so:
+# "brew tap homebrew/dupes"
 # "brew install openssh --with-brewed-openssl"
 # This will give you a working version of OpenSSH with OpenSSL. Testing without
 # OpenSSL failed miserably, so installing it isn't optional.
