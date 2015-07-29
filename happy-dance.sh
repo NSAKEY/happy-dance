@@ -5,14 +5,14 @@
 # Requirements: OpenSSH 6.5 or above, sudo access.
 # (But you should probably run as root anyway)
 # Tested on the following platforms:
-# - Debian Wheezy/Jessie (With ssh from wheezy-backports for Wheezy)
-# - Ubuntu 14.04/15.04
+# - Debian Wheezy & Jessie (With ssh from wheezy-backports for Wheezy)
+# - Ubuntu 14.04 & 15.04
 # - CentOS 7
-# - Mac OS X Yosemite Niresh with openssh from brew
-# - FreeBSD 10
+# - Mac OS X Yosemite Niresh with brew's openssh
+# - FreeBSD 10 & 11
 # - OpenBSD 5.7
 # - NetBSD 7.0 RC 1
-# - Solaris 11.2 with CSWOpenSSH.
+# - Solaris 11.2 with CSWOpenSSH
 
 # Notes:
 # 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
@@ -21,8 +21,8 @@
 # 2. Mac users: You need to install brew. Once that's done, install openssh like so:
 # "brew install openssh --with-brewed-openssl"
 # I'm going to go out on a limb and guess that Apple's TLS library won't work.
-# 3. Another Mac user note: The script drops "unset SSH_AUTH_SOCK" in your 
-# .bash_profile. This is needed so that you can connect to remote hosts. Check the 
+# 3. Another Mac user note: The script drops "unset SSH_AUTH_SOCK" in your
+# .bash_profile. This is needed so that you can connect to remote hosts. Check the
 # comments below if you wish to know more.
 
 # TO DO:
@@ -34,7 +34,6 @@
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
 ###
 
-#PWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # Breaks NetBSD 7.0. So much for being fancy about forcing full path names.
 UNAME=`uname`
 
 echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
