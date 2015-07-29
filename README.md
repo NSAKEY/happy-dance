@@ -19,7 +19,7 @@ To use this repository, OpenSSH 6.5 or higher is required. This scripts works on
 - Debian Wheezy & Jessie (With ssh from wheezy-backports for Wheezy)
 - Ubuntu 14.04 & 15.04
 - CentOS 7
-- Mac OS X Yosemite Niresh with brew's openssh
+- Mac OS X Yosemite Niresh with Homebrew's openssh
 - FreeBSD 10 & 11
 - OpenBSD 5.7
 - NetBSD 7.0 RC 1
