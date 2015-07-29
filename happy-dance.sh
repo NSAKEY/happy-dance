@@ -8,6 +8,7 @@
 # - Debian Wheezy/Jessie (With ssh from wheezy-backports for Wheezy)
 # - Ubuntu 14.04/15.04
 # - CentOS 7
+# - Mac OS X Yosemite Niresh with openssh from brew
 # - FreeBSD 10
 # - OpenBSD 5.7
 # - NetBSD 7.0 RC 1
@@ -17,10 +18,17 @@
 # 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
 # platforms. You don't have to do anything extra to make the script work.
 # Also, SHA256 fingerprints are now a thing for you.
+# 2. Mac users: You need to install brew. Once that's done, install openssh like so:
+# "brew install openssh --with-brewed-openssl"
+# I'm going to go out on a limb and guess that Apple's TLS library won't work.
+# 3. Another Mac user note: The script drops "unset SSH_AUTH_SOCK" in your 
+# .bash_profile. This is needed so that you can connect to remote hosts. Check the 
+# comments below if you wish to know more.
 
 # TO DO:
 # 1. Eventually rework the configs to support new options in OpenSSH,
 # like FingerprintHash in 6.8 and ChaCha20-poly1350@openssh.com in 6.9.
+# This wil
 
 # This script automates everything laid out in stribika's Secure Secure Shell.
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
@@ -40,7 +48,11 @@ https://stribika.github.io/2015/01/04/secure-secure-shell.html
 
 ssh_client() {
     echo "Replacing your ssh client configuration file..."
-    sudo cp etc/ssh/ssh_config /etc/ssh/ssh_config # Removed $PWD
+    if [ -f /usr/local/etc/ssh/ssh_config ]; then
+        sudo cp etc/ssh/ssh_config /usr/local/etc/ssh/ssh_config
+    else
+        sudo cp etc/ssh/ssh_config /etc/ssh/ssh_config # Removed $PWD
+    fi
 
     if [ ! -f $HOME/.ssh/id_ed25519 ]; then
         ssh-keygen -t ed25519 -o -a 100
@@ -52,6 +64,14 @@ ssh_client() {
         ssh-keygen -t rsa -b 4096 -o -a 100
     else
         echo "You already have an RSA key! If it's not at least 4096 bits, you should delete or move it and re-run this script!"
+    fi
+
+    if [ $UNAME = "Darwin" ]; then 
+        echo "unset SSH_AUTH_SOCK" >> ~/.bash_profile
+        unset SSH_AUTH_SOCK
+        echo "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048"
+    else
+        break;
     fi
 }
 
@@ -71,7 +91,6 @@ ssh_server() {
         fi
         case $yn in
             [Yy]* ) echo "Replacing your ssh server configuration file..."
-                sudo cp etc/ssh/sshd_config /etc/ssh/sshd_config #Removed $PWD
 
                 if [ ! -f /etc/ssh/moduli ]; then
                     if [ ! -f /etc/moduli ]; then
@@ -90,12 +109,22 @@ ssh_server() {
                     sudo mv "${HOME}/moduli" /etc/ssh/moduli
                 fi
 
-                cd /etc/ssh
+                if [ -d /usr/local/etc/ssh ]; then
+                    sudo cp etc/ssh/sshd_config /usr/local/etc/ssh/sshd_config
+                    ED25519_fingerprint="$(ssh-keygen -l -f /usr/local/etc/ssh/ssh_host_ed25519_key.pub)"
+                    RSA_fingerprint="$(ssh-keygen -l -f /usr/local/etc/ssh/ssh_host_rsa_key.pub)"
+                    cd /usr/local/etc/ssh
+                else
+                    sudo cp etc/ssh/sshd_config /etc/ssh/sshd_config
+                    ED25519_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub)"
+                    RSA_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key.pub)"
+                    cd /etc/ssh
+                fi
+
                 sudo rm ssh_host_*key*
                 sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
                 sudo ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
-                ED25519_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub)"
-                RSA_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key.pub)"
+
                 echo ""
                 echo "Your new host key fingerprints are:"
                 echo $ED25519_fingerprint
