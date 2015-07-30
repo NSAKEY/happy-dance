@@ -193,7 +193,7 @@ ssh_server() {
 
 # This last bit of code just defines the flags.
 
-while getopts "hcs" opt; do
+while getopts "cs" opt; do
     case $opt in
 
         c)
