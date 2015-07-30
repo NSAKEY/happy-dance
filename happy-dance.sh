@@ -37,10 +37,14 @@
 UNAME=`uname`
 
 echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
-Use -h for help.
+
 For an explanation of everything used in the configs, check out Secure Secure Shell:
 https://stribika.github.io/2015/01/04/secure-secure-shell.html
 Check out the README and the script's source if you want to see how the sausage is made.
+
+Flags:
+            -c  Set up a client
+            -s  Set up a server
 "
 
 # The ssh_client function takes the time to check for the existence of keys
@@ -191,12 +195,6 @@ ssh_server() {
 
 while getopts "hcs" opt; do
     case $opt in
-        h)
-            echo "Flags:
-            -c  Set up a client
-            -s  Set up a server
-            "
-        ;;
 
         c)
             ssh_client
