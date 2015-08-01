@@ -36,7 +36,7 @@
 
 UNAME=`uname`
 
-echo "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
+printf "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
 
 For an explanation of everything used in the configs, check out Secure Secure Shell:
 https://stribika.github.io/2015/01/04/secure-secure-shell.html
@@ -51,7 +51,7 @@ Flags:
 # because deleting or overwriting existing keys would be bad.
 
 ssh_client() {
-    echo "Replacing your ssh client configuration file..."
+    printf "Replacing your ssh client configuration file..."
     if [ -f /usr/local/etc/ssh/ssh_config ]; then
         sudo cp etc/ssh/ssh_config /usr/local/etc/ssh/ssh_config
     else
@@ -64,21 +64,21 @@ ssh_client() {
     if [ ! -f $HOME/.ssh/id_ed25519 ]; then
         ssh-keygen -t ed25519 -o -a 100
     else
-        echo "You already have an ED25519 key!"
+        printf "You already have an ED25519 key!"
     fi
 
     if [ ! -f $HOME/.ssh/id_rsa ]; then
         ssh-keygen -t rsa -b 4096 -o -a 100
     else
-        echo "You already have an RSA key! If it's not at least 4096 bits, you should delete or move it and re-run this script!"
+        printf "You already have an RSA key! If it's not at least 4096 bits, you should delete or move it and re-run this script!"
     fi
 
     # This rather hackish check for OS X is only done so that the user's .bash_profile can be modified to make outgoing ssh connections work.
 
     if [ $UNAME = "Darwin" ]; then
-        echo "unset SSH_AUTH_SOCK" >> ~/.bash_profile
+        printf "unset SSH_AUTH_SOCK" >> ~/.bash_profile
         unset SSH_AUTH_SOCK
-        echo "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048"
+        printf "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048"
     else
         break;
     fi
@@ -99,7 +99,7 @@ ssh_server() {
             read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
         fi
         case $yn in
-            [Yy]* ) echo "Replacing your ssh server configuration file..."
+            [Yy]* ) printf "Replacing your ssh server configuration file..."
 
         # Some platforms (Such as OpenBSD and NetBSD) store the moduli in /etc/moduli,
         # instead of /etc/ssh/moduli. I dislike nested ifs on principle, but this one
@@ -107,17 +107,17 @@ ssh_server() {
 
                 if [ ! -f /etc/ssh/moduli ]; then
                     if [ ! -f /etc/moduli ]; then
-                        echo "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
+                        printf "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while."
                         sudo ssh-keygen -G "${HOME}/moduli" -b 4096
                         sudo ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
                         sudo rm "${HOME}/moduli"
                     else
-                        echo "Modifying your /etc/moduli"
+                        printf "Modifying your /etc/moduli"
                         sudo awk '$5 > 2000' /etc/moduli > "${HOME}/moduli"
                        sudo mv "${HOME}/moduli" /etc/moduli
                     fi
                 else
-                    echo "Modifying your /etc/ssh/moduli"
+                    printf "Modifying your /etc/ssh/moduli"
                     sudo awk '$5 > 2000' /etc/ssh/moduli > "${HOME}/moduli"
                     sudo mv "${HOME}/moduli" /etc/ssh/moduli
                 fi
@@ -164,27 +164,27 @@ ssh_server() {
                 # variables contain anything at all, they will print. Otherwise, that's
                 # 2 fewer lines printed in your terminal.
 
-                echo ""
-                echo "Your new host key fingerprints are:"
-                echo $ED25519_fingerprint
-                echo $RSA_fingerprint
+                printf ""
+                printf "Your new host key fingerprints are:"
+                printf $ED25519_fingerprint
+                printf $RSA_fingerprint
                 if [ -n "$ED25519_fingerprint_MD5" ]; then
-                    echo $ED25519_fingerprint_MD5
+                    printf $ED25519_fingerprint_MD5
                 fi
 
                 if [ -n "$RSA_fingerprint_MD5" ]; then
-                    echo $RSA_fingerprint_MD5
+                    printf $RSA_fingerprint_MD5
                 fi
-                echo "Don't forget to verify these!"
-                echo ""
+                printf "Don't forget to verify these!"
+                printf ""
 
                 # Just some final instructions. Nothing too fancy.
 
-                echo "Without closing this ssh session, do the following:
+                printf "Without closing this ssh session, do the following:
                 1. Add your public key to ~/.ssh/authorized_keys if it isn't there already
                 2. Restart your sshd.
                 3. Remove the line from the ~/.ssh/known_hosts file on your computer which corresponds to this server.
-                4. Try logging in. If it works, HAPPY DANCE!"
+                4. Try logging in. If it works, HAPPY DANCE!\n"
                 break;;
             [Nn]* ) exit;; # This is what happens if you select no.
         esac
@@ -205,7 +205,7 @@ while getopts "cs" opt; do
         ;;
 
         \?)
-            echo "$opt is invalid."
+            printf "$opt is invalid."
         ;;
     esac
 done
