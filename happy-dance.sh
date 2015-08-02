@@ -76,9 +76,16 @@ ssh_client() {
     # This rather hackish check for OS X is only done so that the user's .bash_profile can be modified to make outgoing ssh connections work.
 
     if [ $UNAME = "Darwin" ]; then
-        printf "unset SSH_AUTH_SOCK" >> ~/.bash_profile
+        if grep -qFx "unset SSH_AUTH_SOCK" ~/.bash_profile; then # This just keeps the user from having SSH_AUTH_SOCK unset multiple times. It's a matter of config file cleanliness.
+            printf "Refusing to duplicate effort in your .bash_profile\n"
+        else
+            printf "unset SSH_AUTH_SOCK\n" >> ~/.bash_profile
+        fi
         unset SSH_AUTH_SOCK
-        printf "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048\n"
+        printf "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048\n\n"
+        printf "OpenSSH will work the next time you log in. If you want to use OPenSH imediately, run the following command in your terminal:\n"
+        printf "unset SSH_SOCK_AUTH\n"
+        printf "You only have to run that command once. That line is in your .bash_profile and will automatically make OpenSSH work for you on all future logins.\n"
     else
         break;
     fi
