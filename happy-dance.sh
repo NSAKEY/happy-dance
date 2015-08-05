@@ -35,6 +35,7 @@
 ###
 
 UNAME=`uname`
+KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
 
 printf "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
 
@@ -70,7 +71,12 @@ ssh_client() {
     if [ ! -f $HOME/.ssh/id_rsa ]; then
         ssh-keygen -t rsa -b 4096 -o -a 100
     else
-        printf "You already have an RSA key! If it's not at least 4096 bits, you should delete or move it and re-run this script!\n"
+        if [ "$KEYSIZE" -ge 4096 ]; then
+            printf "You already have an RSA key!\n"
+        else
+            printf "You already have an RSA key, but it's only $KEYSIZE bits long. You should delete or move it and re-run this script, or generate another key by hand! The command to generate your own RSA key pair is:\n\n"
+            printf "ssh-keygen -t rsa -b 4096 -o -a 100\n"
+        fi
     fi
 
     # This rather hackish check for OS X is only done so that the user's .bash_profile can be modified to make outgoing ssh connections work.
