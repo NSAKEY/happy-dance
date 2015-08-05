@@ -73,47 +73,47 @@ ssh_client() {
                 else
                     sudo cp etc/ssh/ssh_config /etc/ssh/ssh_config # Removed $PWD
                 fi
+
+                # If you don't already have ssh keys, they will be generated for you.
+                # If you do have keys, they won't be deleted, because that would be rude.
+
+               if [ ! -f $HOME/.ssh/id_ed25519 ]; then
+                   ssh-keygen -t ed25519 -o -a 100
+               else
+                   printf "You already have an ED25519 key!\n"
+               fi
+
+               if [ ! -f $HOME/.ssh/id_rsa ]; then
+                   ssh-keygen -t rsa -b 4096 -o -a 100
+               else
+                   #KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # Commented out for testing purposes.
+                   if [ "$KEYSIZE" -ge 4096 ]; then
+                       printf "You already have an RSA key!\n"
+                   else
+                       printf "You already have an RSA key, but it's only $KEYSIZE bits long. You should delete or move it and re-run this script, or generate another key by hand! The command to generate your own RSA key pair is:\n\n"
+                       printf "ssh-keygen -t rsa -b 4096 -o -a 100\n"
+                   fi
+               fi
+
+               # This rather hackish check for OS X is only done so that the user's .bash_profile can be modified to make outgoing ssh connections work.
+
+               if [ $UNAME = "Darwin" ]; then
+                   if grep -qFx "unset SSH_AUTH_SOCK" ~/.bash_profile; then # This just keeps the user from having SSH_AUTH_SOCK unset multiple times. It's a matter of config file cleanliness.
+                       printf "Refusing to duplicate effort in your .bash_profile\n"
+                   else
+                       printf "unset SSH_AUTH_SOCK\n" >> ~/.bash_profile
+                   fi
+                   printf "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048\n\n"
+                   printf "OpenSSH will work the next time you log in. If you want to use OPenSH imediately, run the following command in your terminal:\n"
+                   printf "unset SSH_SOCK_AUTH\n"
+                   printf "You only have to run that command once. That line is in your .bash_profile and will automatically make OpenSSH work for you on all future logins.\n"
+               else
+                   exit;
+               fi
             exit;;
             [Nn]* ) exit;; # This is what happens if you select no.
         esac
-     done
-
-    # If you don't already have ssh keys, they will be generated for you.
-    # If you do have keys, they won't be deleted, because that would be rude.
-
-    if [ ! -f $HOME/.ssh/id_ed25519 ]; then
-        ssh-keygen -t ed25519 -o -a 100
-    else
-        printf "You already have an ED25519 key!\n"
-    fi
-
-    if [ ! -f $HOME/.ssh/id_rsa ]; then
-        ssh-keygen -t rsa -b 4096 -o -a 100
-    else
-        KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
-        if [ "$KEYSIZE" -ge 4096 ]; then
-            printf "You already have an RSA key!\n"
-        else
-            printf "You already have an RSA key, but it's only $KEYSIZE bits long. You should delete or move it and re-run this script, or generate another key by hand! The command to generate your own RSA key pair is:\n\n"
-            printf "ssh-keygen -t rsa -b 4096 -o -a 100\n"
-        fi
-    fi
-
-    # This rather hackish check for OS X is only done so that the user's .bash_profile can be modified to make outgoing ssh connections work.
-
-    if [ $UNAME = "Darwin" ]; then
-        if grep -qFx "unset SSH_AUTH_SOCK" ~/.bash_profile; then # This just keeps the user from having SSH_AUTH_SOCK unset multiple times. It's a matter of config file cleanliness.
-            printf "Refusing to duplicate effort in your .bash_profile\n"
-        else
-            printf "unset SSH_AUTH_SOCK\n" >> ~/.bash_profile
-        fi
-        printf "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048\n\n"
-        printf "OpenSSH will work the next time you log in. If you want to use OPenSH imediately, run the following command in your terminal:\n"
-        printf "unset SSH_SOCK_AUTH\n"
-        printf "You only have to run that command once. That line is in your .bash_profile and will automatically make OpenSSH work for you on all future logins.\n"
-    else
-        exit;
-    fi
+    done
 }
 
 # Meanwhile, the ssh_server function asks if you're sure you want to
