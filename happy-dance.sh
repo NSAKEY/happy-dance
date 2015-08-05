@@ -34,8 +34,12 @@
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
 ###
 
+# Just setting some variables before we started.
+
 UNAME=`uname`
-KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
+#KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
+
+# What follows is just some introductory text.
 
 printf "This script will give you an ssh config for clients and servers that should force the NSA to work for a living.
 
@@ -71,6 +75,7 @@ ssh_client() {
     if [ ! -f $HOME/.ssh/id_rsa ]; then
         ssh-keygen -t rsa -b 4096 -o -a 100
     else
+        KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
         if [ "$KEYSIZE" -ge 4096 ]; then
             printf "You already have an RSA key!\n"
         else
@@ -93,7 +98,7 @@ ssh_client() {
         printf "unset SSH_SOCK_AUTH\n"
         printf "You only have to run that command once. That line is in your .bash_profile and will automatically make OpenSSH work for you on all future logins.\n"
     else
-        break;
+        exit;
     fi
 }
 
@@ -196,7 +201,7 @@ ssh_server() {
                 2. Restart your sshd.
                 3. Remove the line from the ~/.ssh/known_hosts file on your computer which corresponds to this server.
                 4. Try logging in. If it works, HAPPY DANCE!\n"
-                break;;
+                exit;;
             [Nn]* ) exit;; # This is what happens if you select no.
         esac
     done
