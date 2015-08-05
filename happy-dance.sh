@@ -37,7 +37,7 @@
 # Just setting some variables before we started.
 
 UNAME=`uname`
-#KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
+KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
 
 # What follows is just some introductory text.
 
@@ -92,7 +92,6 @@ ssh_client() {
         else
             printf "unset SSH_AUTH_SOCK\n" >> ~/.bash_profile
         fi
-        unset SSH_AUTH_SOCK
         printf "Since you use Mac OS X, you had to have a small modification to your .bash_profile in order to connect to remote hosts. Read here and follow the links to learn more: http:/serverfault.com/a/486048\n\n"
         printf "OpenSSH will work the next time you log in. If you want to use OPenSH imediately, run the following command in your terminal:\n"
         printf "unset SSH_SOCK_AUTH\n"
