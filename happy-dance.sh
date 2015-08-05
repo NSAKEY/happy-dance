@@ -37,7 +37,7 @@
 # Just setting some variables before we started.
 
 UNAME=`uname`
-KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
+#KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`# This variable being here breaks things for akhepcat, so it's commented out.
 
 # What follows is just some introductory text.
 
@@ -86,7 +86,7 @@ ssh_client() {
                if [ ! -f $HOME/.ssh/id_rsa ]; then
                    ssh-keygen -t rsa -b 4096 -o -a 100
                else
-                   #KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # Commented out for testing purposes.
+                   KEYSIZE=`ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'`
                    if [ "$KEYSIZE" -ge 4096 ]; then
                        printf "You already have an RSA key!\n"
                    else
