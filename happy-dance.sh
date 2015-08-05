@@ -61,13 +61,12 @@ NOTE: Setting up a user config will require sudo access to give you a new ssh_co
 ssh_client() {
     while true; do
         if [ $UNAME = "OpenBSD" ] || [ $UNAME = "SunOS" ]; then # Needed for OpenBSD and Solaris support because the read command behaves differently on both.
-            read yn?"This option replaces your ssh_config without backing up the original. Are you sure you want to proceed? (y/n)"
+            read yn?"This option replaces your ssh_config without backing up the original. Root or sudo access is requuired to do this. Are you sure you want to proceed? (y/n)"
         else
-            read -p "This option replaces your ssh_config without backing up the original. Are you sure you want to proceed? (y/n)" yn
+            read -p "This option replaces your ssh_config without backing up the original. Root or sudo access is required to do this. Are you sure you want to proceed? (y/n)" yn
         fi
         case $yn in
             [Yy]* ) printf "Replacing your ssh client configuration file...\n"
-                printf "The script needs root access in order to do this.\n"
                 if [ -f /usr/local/etc/ssh/ssh_config ]; then
                     sudo cp etc/ssh/ssh_config /usr/local/etc/ssh/ssh_config
                 else
