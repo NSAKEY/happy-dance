@@ -48,20 +48,35 @@ https://stribika.github.io/2015/01/04/secure-secure-shell.html
 Check out the README and the script's source if you want to see how the sausage is made.
 
 Flags:
-            -c  Set up a client
-            -s  Set up a server
+            -c  Set up a client. Use this if you're hardening your user config to make connections to remote hosts.
+            -s  Set up a server. Use this flag if you're hardening the ssh config of a remote host to accept connections from users.
+
+NOTE: Setting up a user config will require sudo access to give you a new ssh_config file.
+
 "
 
 # The ssh_client function takes the time to check for the existence of keys
 # because deleting or overwriting existing keys would be bad.
 
 ssh_client() {
-    printf "Replacing your ssh client configuration file...\n"
-    if [ -f /usr/local/etc/ssh/ssh_config ]; then
-        sudo cp etc/ssh/ssh_config /usr/local/etc/ssh/ssh_config
-    else
-        sudo cp etc/ssh/ssh_config /etc/ssh/ssh_config # Removed $PWD
-    fi
+    while true; do
+        if [ $UNAME = "OpenBSD" ] || [ $UNAME = "SunOS" ]; then # Needed for OpenBSD and Solaris support because the read command behaves differently on both.
+            read yn?"This option replaces your ssh_config without backing up the original. Are you sure you want to proceed? (y/n)"
+        else
+            read -p "This option replaces your ssh_config without backing up the original. Are you sure you want to proceed? (y/n)" yn
+        fi
+        case $yn in
+            [Yy]* ) printf "Replacing your ssh client configuration file...\n"
+                printf "The script needs root access in order to do this.\n"
+                if [ -f /usr/local/etc/ssh/ssh_config ]; then
+                    sudo cp etc/ssh/ssh_config /usr/local/etc/ssh/ssh_config
+                else
+                    sudo cp etc/ssh/ssh_config /etc/ssh/ssh_config # Removed $PWD
+                fi
+            exit;;
+            [Nn]* ) exit;; # This is what happens if you select no.
+        esac
+     done
 
     # If you don't already have ssh keys, they will be generated for you.
     # If you do have keys, they won't be deleted, because that would be rude.
@@ -111,9 +126,9 @@ ssh_client() {
 ssh_server() {
     while true; do
         if [ $UNAME = "OpenBSD" ] || [ $UNAME = "SunOS" ]; then # Needed for OpenBSD and Solaris support because the read command behaves differently on both.
-            read yn?"This option destroys all host keys. Are you sure want to proceed? (y/n)"
+            read yn?"This option destroys all host keys and replaces your sshd_config file. Are you sure want to proceed? (y/n)"
         else
-            read -p "This option destroys all host keys. Are you sure want to proceed? (y/n)" yn
+            read -p "This option destroys all host keys and replaces your sshd_config file. Are you sure want to proceed? (y/n)" yn
         fi
         case $yn in
             [Yy]* ) printf "Replacing your ssh server configuration file...\n"
