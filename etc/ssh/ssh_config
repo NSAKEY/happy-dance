@@ -12,6 +12,15 @@
 # Thus, host-specific definitions should be at the beginning of the
 # configuration file, and defaults at the end.
 
+# Site-specific key exchange algorithms. This is here so that if you're 
+# having trouble logging into a server, you can modify and uncomment the
+# lines below and be on the way to getting work done.
+
+# Host github.com *.github.com
+#     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
+
+
+
 # Site-wide defaults for some commonly used options.  For a comprehensive
 # list of available options, their meanings and defaults, please see the
 # ssh_config(5) man page.
