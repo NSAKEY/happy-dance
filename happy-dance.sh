@@ -38,7 +38,7 @@
 
 UNAME=`uname`
 KEYSIZE=`test -r ~/.ssh/id_rsa.pub && ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # A special thanks to akhepcat for the suggestion to test -r first. It catches an edge case that may throw an error message for some clients.
-VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null ; echo $?`
+VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null 2> /dev/null; echo $?`
 
 # What follows is just some introductory text.
 
@@ -66,6 +66,13 @@ if [ $VERSION -gt 0 ]; then
 else
 
     rm -rf /tmp/version.check* # Just doing some house keeping.
+
+    generate_moduli() {
+        printf "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while.\n"
+        sudo ssh-keygen -G "${HOME}/moduli.all" -b 4096
+        sudo ssh-keygen -T "${HOME}/moduli" -f "${HOME}/moduli.all"
+        sudo rm "${HOME}/moduli.all"
+    }
 
     # The ssh_client function takes the time to check for the existence of keys
     # because deleting or overwriting existing keys would be bad.
@@ -149,18 +156,24 @@ else
 
                     if [ ! -f /etc/ssh/moduli ]; then
                         if [ ! -f /etc/moduli ]; then
-                            printf "Your OS doesn't have an /etc/ssh/moduli file, so we have to generate one. This might take a while.\n"
-                            sudo ssh-keygen -G "${HOME}/moduli" -b 4096
-                            sudo ssh-keygen -T /etc/ssh/moduli -f "${HOME}/moduli"
-                            sudo rm "${HOME}/moduli"
+                            generate_moduli
+                            sudo mv "${HOME}/moduli" /etc/ssh/moduli
                         else
                             printf "Modifying your /etc/moduli\n"
                             sudo awk '$5 > 2000' /etc/moduli > "${HOME}/moduli"
-                           sudo mv "${HOME}/moduli" /etc/moduli
+                            LINES=$(wc -l "${HOME}/moduli" | awk '{print $1}')
+                            if [ $LINES -eq 0 ]; then
+                                generate_moduli
+                            fi
+                            sudo mv "${HOME}/moduli" /etc/moduli
                         fi
                     else
                         printf "Modifying your /etc/ssh/moduli\n"
                         sudo awk '$5 > 2000' /etc/ssh/moduli > "${HOME}/moduli"
+                        LINES=$(wc -l "${HOME}/moduli" | awk '{print $1}')
+                        if [ $LINES -eq 0 ]; then
+                            generate_moduli
+                        fi
                         sudo mv "${HOME}/moduli" /etc/ssh/moduli
                     fi
 
