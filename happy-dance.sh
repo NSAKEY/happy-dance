@@ -38,7 +38,7 @@
 
 UNAME=`uname`
 KEYSIZE=`test -r ~/.ssh/id_rsa.pub && ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # A special thanks to akhepcat for the suggestion to test -r first. It catches an edge case that may throw an error message for some clients.
-VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null ; echo $? ; rm -rf /tmp/version.check*`
+VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null ; echo $?`
 
 # What follows is just some introductory text.
 
@@ -63,6 +63,9 @@ NOTE: Setting up a user config will require sudo access to give you a new ssh_co
 if [ $VERSION -gt 0 ]; then
     printf "Your OpenSSH version is too old to run happy-dance. Upgrade to 6.5 or above.\n"
 else
+
+    rm -rf /tmp/version.check* # Just doing some house keeping.
+
     # The ssh_client function takes the time to check for the existence of keys
     # because deleting or overwriting existing keys would be bad.
 
