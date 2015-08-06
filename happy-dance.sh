@@ -38,6 +38,7 @@
 
 UNAME=`uname`
 KEYSIZE=`test -r ~/.ssh/id_rsa.pub && ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # A special thanks to akhepcat for the suggestion to test -r first. It catches an edge case that may throw an error message for some clients.
+VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null ; echo $? ; rm -rf /tmp/version.check`
 
 # What follows is just some introductory text.
 
@@ -58,10 +59,6 @@ NOTE: Setting up a user config will require sudo access to give you a new ssh_co
 # Before getting too carried away, we're going to check the SSH version in an
 # informal but clear way. This script requires OpenSSH 6.5, so generating a
 # test ed25519 key is the quickest and easiest way to do a version check.
-
-ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null
-VERSION=`echo $?`
-rm -rf /tmp/version.check
 
 if [ $VERSION -gt 0 ]; then
     printf "Your OpenSSH version is too old to run happy-dance. Upgrade to 6.5 or above.\n"
