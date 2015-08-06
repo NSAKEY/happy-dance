@@ -6,7 +6,7 @@
 # (But you should probably run as root anyway)
 # Tested on the following platforms:
 # - Debian Wheezy & Jessie (With ssh from wheezy-backports for Wheezy)
-# - Ubuntu 14.04 & 15.04
+# - Ubuntu 14.04 & 15.04 (12.04 will work with a PPA according to https://github.com/NSAKEY/happy-dance/issues/1#issuecomment-128469412)
 # - CentOS 7
 # - Mac OS X Yosemite Niresh with Homebrew's openssh
 # - FreeBSD 10 & 11
