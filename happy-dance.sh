@@ -62,6 +62,7 @@ NOTE: Setting up a user config will require sudo access to give you a new ssh_co
 
 if [ $VERSION -gt 0 ]; then
     printf "Your OpenSSH version is too old to run happy-dance. Upgrade to 6.5 or above.\n"
+    exit;
 else
 
     rm -rf /tmp/version.check* # Just doing some house keeping.
