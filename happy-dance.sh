@@ -38,7 +38,7 @@
 
 UNAME=`uname`
 KEYSIZE=`test -r ~/.ssh/id_rsa.pub && ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # A special thanks to akhepcat for the suggestion to test -r first. It catches an edge case that may throw an error message for some clients.
-VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null ; echo $? ; rm -rf /tmp/version.check`
+VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null ; echo $? ; rm -rf /tmp/version.check*`
 
 # What follows is just some introductory text.
 
