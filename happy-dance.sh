@@ -4,6 +4,10 @@
 # happy-dance.sh by _NSAKEY
 # Requirements: OpenSSH 6.5 or above, sudo access.
 # (But you should probably run as root anyway)
+#
+# This script automates everything laid out in stribika's Secure Secure Shell.
+# Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
+#
 # Tested on the following platforms:
 # - Debian Wheezy & Jessie (With ssh from wheezy-backports for Wheezy)
 # - Ubuntu 14.04 & 15.04 (12.04 will work with a PPA according to https://github.com/NSAKEY/happy-dance/issues/1#issuecomment-128469412)
@@ -18,20 +22,34 @@
 # 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
 # platforms. You don't have to do anything extra to make the script work.
 # Also, SHA256 fingerprints are now a thing for you.
+#
 # 2. Mac users: You need to install Homebrew. Once that's done, install openssh like so:
 # "brew tap homebrew/dupes"
 # "brew install openssh --with-brewed-openssl"
 # This will give you a working version of OpenSSH with OpenSSL. Testing without
 # OpenSSL failed miserably, so installing it is required.
+#
 # 3. Another Mac user note: The script drops "unset SSH_AUTH_SOCK" in your
 # .bash_profile. This is needed so that you can connect to remote hosts. Check the
 # comments below if you wish to know more.
-
+#
+# 4. Solaris users: The 11.3 beta has OpenSSH 6.5 in the package manager, but it does NOT
+# support ED25519 keys, which means that happy-dance IS NOT SUPPORTED. I'm still going to document
+# my process for switching to Oracle's OpenSSH, because they may add ED25519 support one day.
+# Here's how it's done:
+# "pkg uninstall ssh"
+# "pkg install openssh"
+# You can verify the ssh version before and after by running "pkg mediator ssh" and looking
+# at the "IMPLEMENTATION" column or by running "ssh -V" and reading the output.
+# The "OpenSSH in Solaris 11.3" blog post by Darren Moffat
+# (Found here: https://blogs.oracle.com/darren/entry/openssh_in_solaris_11_3)
+# states that both SunSSH and OpenSSH can be installed side by side. My experience is that
+# if SunSSH is installed, it takes precedence over OpenSSH, and the only way I found around
+# it is to uninstall SunSSH. I don't use Solaris daily (And only ported happy-dance to it for fun),
+# so I'm certain there's a way to switch without uninstalling ssh. Suggestions are welcome.
+#
 # TO DO:
 # 1. Windows 10 support?
-
-# This script automates everything laid out in stribika's Secure Secure Shell.
-# Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
 ###
 
 # Just setting some variables before we started.
