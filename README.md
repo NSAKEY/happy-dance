@@ -23,7 +23,7 @@ To use this repository, OpenSSH 6.5 or higher is required. This scripts works on
 - FreeBSD 10 & 11
 - OpenBSD 5.7
 - NetBSD 7.0 RC 1
-- Solaris 11.2 with CSWOpenSSH
+- Solaris 11.2 with CSWOpenSSH and 11.3 with OpenSSH from the package manager
 
 INSTALLATION INSTRUCTIONS
 

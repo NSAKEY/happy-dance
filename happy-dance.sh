@@ -16,7 +16,7 @@
 # - FreeBSD 10 & 11
 # - OpenBSD 5.7
 # - NetBSD 7.0 RC 1
-# - Solaris 11.2 with CSWOpenSSH
+# - Solaris 11.2 with CSWOpenSSH and 11.3 Beta with OpenSSH from the package manager
 
 # Notes:
 # 1. OpenBSD/NetBSD users: /etc/moduli is the same as /etc/moduli on other
@@ -33,14 +33,10 @@
 # .bash_profile. This is needed so that you can connect to remote hosts. Check the
 # comments below if you wish to know more.
 #
-# 4. Solaris users: The 11.3 beta has OpenSSH 6.5 in the package manager, but it does NOT
-# support ED25519 keys, which means that happy-dance IS NOT SUPPORTED. I'm still going to document
+# 4. Solaris users: The 11.3 beta has OpenSSH 6.5 in the package manager, but it's the only
+# version of 6.5 I've ever seen that does NOT support ED25519 keys. It does, however, support
+# the -o flag introduced in OpenSSH 6.5, so that's now used for the version check code.
 # my process for switching to Oracle's OpenSSH, because they may add ED25519 support one day.
-# Here's how it's done:
-# "pkg uninstall ssh"
-# "pkg install openssh"
-# You can verify the ssh version before and after by running "pkg mediator ssh" and looking
-# at the "IMPLEMENTATION" column or by running "ssh -V" and reading the output.
 # The "OpenSSH in Solaris 11.3" blog post by Darren Moffat
 # (Found here: https://blogs.oracle.com/darren/entry/openssh_in_solaris_11_3)
 # states that both SunSSH and OpenSSH can be installed side by side. My experience is that
@@ -56,7 +52,8 @@
 
 UNAME=`uname`
 KEYSIZE=`test -r ~/.ssh/id_rsa.pub && ssh-keygen -l -f ~/.ssh/id_rsa.pub | awk '{print $1}'` # A special thanks to akhepcat for the suggestion to test -r first. It catches an edge case that may throw an error message for some clients.
-VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null 2> /dev/null; echo $?`
+#VERSION=`ssh-keygen -t ed25519 -f /tmp/version.check -o -a 100 -q -N "" < /dev/null 2> /dev/null; echo $?` # Old version check.
+VERSION=`ssh-keygen -t rsa -f /tmp/version.check -o -a 100 -q -N "" < /dev/null 2> /dev/null; echo $?` # Solaris 11.3's OpenSSH do not support ED25519 keys (Source: https://twitter.com/darrenmoffat/status/641568090581528576), but do support the option to use bcrypt to protect keys at rest. Since that option is common to all newer implementations of OpenSSH, that's what will be used for the version check from now on.
 
 # What follows is just some introductory text.
 
@@ -76,7 +73,7 @@ NOTE: Setting up a user config will require sudo access to give you a new ssh_co
 
 # Before getting too carried away, we're going to check the SSH version in an
 # informal but clear way. This script requires OpenSSH 6.5, so generating a
-# test ed25519 key is the quickest and easiest way to do a version check.
+# test RSA key with the -o flag is the quickest and easiest way to do a version check.
 
 if [ $VERSION -gt 0 ]; then
     printf "Your OpenSSH version is too old to run happy-dance. Upgrade to 6.5 or above.\n"
@@ -94,6 +91,14 @@ else
 
     # The ssh_client function takes the time to check for the existence of keys
     # because deleting or overwriting existing keys would be bad.
+
+    print_for_solaris_users() {
+        printf "\nSolaris 11.2 and older users need to install OpenSSH from OpenCSW in order for happy-dance to work.\n"
+        printf "Solaris 11.3 users can get OpenSSH by running the following commands:\n"
+        printf "pkg uninstall ssh\n"
+        printf "pkg install openssh\n"
+        printf "You can verify the ssh version before and after by running 'pkg mediator ssh' and looking at the 'IMPLEMENTATION' column or by running 'ssh -V' and reading the output.\n\n"
+    }
 
     ssh_client() {
         while true; do
@@ -114,7 +119,7 @@ else
                     # If you do have keys, they won't be deleted, because that would be rude.
 
                    if [ ! -f $HOME/.ssh/id_ed25519 ]; then
-                       ssh-keygen -t ed25519 -o -a 100
+                       ssh-keygen -t ed25519 -o -a 100 2> /dev/null
                    else
                        printf "You already have an ED25519 key!\n"
                    fi
@@ -128,6 +133,14 @@ else
                            printf "You already have an RSA key, but it's only $KEYSIZE bits long. You should delete or move it and re-run this script, or generate another key by hand! The command to generate your own RSA key pair is:\n\n"
                            printf "ssh-keygen -t rsa -b 4096 -o -a 100\n"
                        fi
+                   fi
+
+                   # Just printing some info for Solaris users.
+
+                   if [ $UNAME = "SunOS" ]; then
+                       print_for_solaris_users
+                   else
+                       exit;
                    fi
 
                    # This rather hackish check for OS X is only done so that the user's .bash_profile can be modified to make outgoing ssh connections work.
@@ -145,6 +158,7 @@ else
                    else
                        exit;
                    fi
+
                 exit;;
                 [Nn]* ) exit;; # This is what happens if you select no.
             esac
@@ -215,9 +229,9 @@ else
                         sudo cp etc/ssh/sshd_config /usr/local/etc/ssh/sshd_config
                         cd /usr/local/etc/ssh
                         sudo rm ssh_host_*key*
-                        sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
+                        sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null 2> /dev/null
                         sudo ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
-                        ED25519_fingerprint="$(ssh-keygen -l -f /usr/local/etc/ssh/ssh_host_ed25519_key.pub)"
+                        ED25519_fingerprint="$(ssh-keygen -l -f /usr/local/etc/ssh/ssh_host_ed25519_key.pub 2> /dev/null)"
                         RSA_fingerprint="$(ssh-keygen -l -f /usr/local/etc/ssh/ssh_host_rsa_key.pub)"
                         ED25519_fingerprint_MD5="$(ssh-keygen -l -E md5 -f /usr/local/etc/ssh/ssh_host_ed25519_key.pub 2> /dev/null)"
                         RSA_fingerprint_MD5="$(ssh-keygen -l -E md5 -f /usr/local/etc/ssh/ssh_host_rsa_key.pub 2> /dev/null)"
@@ -225,9 +239,9 @@ else
                         sudo cp etc/ssh/sshd_config /etc/ssh/sshd_config
                         cd /etc/ssh
                         sudo rm ssh_host_*key*
-                        sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null
+                        sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null 2> /dev/null
                         sudo ssh-keygen -t rsa -b 4096 -f ssh_host_rsa_key -q -N "" < /dev/null
-                        ED25519_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub)"
+                        ED25519_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub 2> /dev/null)"
                         RSA_fingerprint="$(ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key.pub)"
                         ED25519_fingerprint_MD5="$(ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_ed25519_key.pub 2> /dev/null)"
                         RSA_fingerprint_MD5="$(ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_rsa_key.pub 2> /dev/null)"
@@ -238,16 +252,22 @@ else
                     # 2 fewer lines printed in your terminal.
 
                     printf "Your new host key fingerprints are:\n"
-                    printf "$ED25519_fingerprint\n"
+                    printf "$ED25519_fingerprint\n" 2> /dev/null
                     printf "$RSA_fingerprint\n"
                     if [ -n "$ED25519_fingerprint_MD5" ]; then
-                        printf "$ED25519_fingerprint_MD5\n"
+                        printf "$ED25519_fingerprint_MD5\n" 2> /dev/null
                     fi
 
                     if [ -n "$RSA_fingerprint_MD5" ]; then
                         printf "$RSA_fingerprint_MD5\n"
                     fi
                     printf "Don't forget to verify these!\n"
+
+                    if [ $UNAME = "SunOS" ]; then
+                        print_for_solaris_users
+                    else
+                        exit;
+                    fi
 
                     # Just some final instructions. Nothing too fancy.
 
