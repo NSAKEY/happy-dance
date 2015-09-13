@@ -119,7 +119,7 @@ else
                     # If you do have keys, they won't be deleted, because that would be rude.
 
                    if [ ! -f $HOME/.ssh/id_ed25519 ]; then
-                       ssh-keygen -t ed25519 -o -a 100 2> /dev/null
+                       ssh-keygen -t ed25519 -o -a 100
                    else
                        printf "You already have an ED25519 key!\n"
                    fi
