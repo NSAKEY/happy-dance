@@ -72,7 +72,7 @@ NOTE: Setting up a user config will require sudo access to give you a new ssh_co
 "
 
 # Before getting too carried away, we're going to check the SSH version in an
-# informal but clear way. This script requires OpenSSH 6.5, so generating a
+# informal but clear way. This script requires at least OpenSSH 6.5, so generating a
 # test RSA key with the -o flag is the quickest and easiest way to do a version check.
 
 if [ $VERSION -gt 0 ]; then
