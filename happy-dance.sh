@@ -226,7 +226,7 @@ else
                     # worry about your OpenSSH version.
 
                     if [ -d /usr/local/etc/ssh ]; then
-                        sudo cp etc/ssh/sshd_config /usr/local/etc/ssh/sshd_config
+                        sudo sed 's/Hostkey \/etc\/ssh/Hostkey \/usr\/local\/etc\/ssh/g' etc/ssh/sshd_config > /usr/local/etc/ssh/sshd_config # The most portable way I could think of to account for users who build openssh from source.
                         cd /usr/local/etc/ssh
                         sudo rm ssh_host_*key*
                         sudo ssh-keygen -t ed25519 -f ssh_host_ed25519_key -q -N "" < /dev/null 2> /dev/null
