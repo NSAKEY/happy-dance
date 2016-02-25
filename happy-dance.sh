@@ -46,7 +46,8 @@
 # so I'm certain there's a way to switch without uninstalling ssh. Suggestions are welcome.
 #
 # TO DO:
-# 1. Windows 10 support?
+# 1. Ansible/chef/puppet support, for maximum devops deliciousness.
+# 2. Windows 10 client support?
 ###
 
 # Just setting some variables before we started.
