@@ -162,7 +162,7 @@ else
                    fi
 
                 exit;;
-                [Nn]* ) exit;; # This is what happens if you select no.
+                * ) exit;; # This is what happens if you do anything but select yes.
             esac
         done
     }
