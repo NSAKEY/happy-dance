@@ -3,7 +3,6 @@
 ###
 # happy-dance.sh by _NSAKEY
 # Requirements: OpenSSH 6.5 or above, sudo access.
-# (But you should probably run as root anyway)
 #
 # This script automates everything laid out in stribika's Secure Secure Shell.
 # Source: https://stribika.github.io/2015/01/04/secure-secure-shell.html
